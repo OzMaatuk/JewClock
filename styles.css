@@ -1,0 +1,213 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    display: flex; /* Enable flexbox for the body */
+    flex-direction: column; /* Stack main and footer vertically */
+    min-height: 100vh; /* Ensure body takes at least the full viewport height */
+}
+
+/* Main container */
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 2rem;
+    margin: 2rem 0;
+    flex-grow: 1; /* Allow main to grow */
+}
+
+/* History section (left side) */
+#history {
+    grid-column: 1 / 2;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex; /* Use flexbox to manage vertical space */
+    flex-direction: column;
+    overflow: hidden; /* Hide potential overflow if needed, though JS scrolls */
+}
+
+#history-heading {
+    font-size: 1.8rem;
+    color: #1a3c6d;
+    margin-bottom: 1rem;
+    flex-shrink: 0; /* Prevent heading from shrinking */
+}
+
+#history-iframe {
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    flex-grow: 1; /* Make the iframe fill remaining vertical space */
+    min-height: 400px; /* Ensure a minimum height */
+}
+
+/* Right side container */
+aside {
+    grid-column: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Consistent gap */
+}
+
+/* Header within aside */
+aside header {
+    text-align: left;
+    padding: 0;
+    border-bottom: none;
+}
+
+aside h1 {
+    font-size: 2.5rem;
+    color: #1a3c6d;
+    margin-bottom: 1rem;
+}
+
+aside #current-date p {
+    margin: 0.5rem 0;
+    font-size: 1.1rem; /* Slightly smaller for better fit */
+}
+aside #current-date p strong {
+    color: #1a3c6d;
+}
+
+/* Zmanim section (right side) */
+#zmanim {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#zmanim-heading {
+    font-size: 1.8rem;
+    color: #1a3c6d;
+    margin-bottom: 1rem;
+}
+
+.time-list {
+    list-style: none;
+    padding-left: 0; /* Remove default padding */
+}
+
+.time-list li {
+    margin: 0.6rem 0;
+    font-size: 1rem; /* Adjust size */
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #eee; /* Separator line */
+}
+.time-list li:last-child {
+    border-bottom: none; /* Remove border from last item */
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1.5rem 0 1rem 0; /* Add some space */
+    margin-top: 1rem; /* Space above footer */
+    border-top: 1px solid #ddd;
+    font-size: 0.9rem;
+    color: #666;
+}
+footer a {
+    color: #1a3c6d;
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Hebrew events styling */
+.hebrew-events {
+    display: block;
+    margin-top: 0.3em;
+    color: #1a3c6d;
+    font-size: 1.05em;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-align: left;
+    padding-left: 0.2em;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: 1fr; /* Stack columns */
+    }
+    #history, aside {
+        grid-column: auto;
+    }
+    aside {
+        flex-direction: column;
+    }
+    aside header {
+        text-align: center; /* Center header */
+    }
+    aside h1 {
+        font-size: 2rem;
+    }
+    #zmanim-heading, #history-heading {
+        font-size: 1.5rem;
+    }
+    /* Adjust iframe height for mobile */
+    #history-iframe {
+        min-height: 350px; /* Adjust as needed */
+        height: 50vh; /* Example: half viewport height */
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 0.5rem;
+    }
+    main {
+        margin: 1rem 0;
+        gap: 1.5rem;
+    }
+    #history, #zmanim, aside header {
+        padding: 1rem;
+    }
+     aside h1 {
+        font-size: 1.8rem;
+    }
+    #zmanim-heading, #history-heading {
+        font-size: 1.3rem;
+    }
+     aside #current-date p {
+        font-size: 1rem;
+    }
+    .time-list li {
+         font-size: 0.9rem;
+     }
+}
+
+/* Accessibility */
+:focus {
+    outline: 3px solid #4a90e2; /* Clearer focus outline */
+    outline-offset: 2px;
+}
+/* Skip link for better accessibility - Add to HTML if desired */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #1a3c6d;
+  color: white;
+  padding: 8px;
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 0;
+}
