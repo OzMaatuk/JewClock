@@ -37,12 +37,12 @@ main {
     display: flex; /* Use flexbox to manage vertical space */
     flex-direction: column;
     overflow: hidden; /* Hide potential overflow if needed, though JS scrolls */
+    order: 0; /* Place first in grid on desktop */
 }
 
 #history-heading {
     font-size: 1.8rem;
     color: #1a3c6d;
-    margin-bottom: 1rem;
     flex-shrink: 0; /* Prevent heading from shrinking */
 }
 
@@ -60,9 +60,9 @@ aside {
     display: flex;
     flex-direction: column;
     gap: 1.5rem; /* Consistent gap */
+    order: 1; /* Place second in grid on desktop */
 }
 
-/* Header within aside */
 aside header {
     text-align: left;
     padding: 0;
@@ -151,6 +151,10 @@ footer a:hover {
     }
     aside {
         flex-direction: column;
+        order: 1; /* Aside first on mobile */
+    }
+    #history {
+        order: 2; /* History last on mobile */
     }
     aside header {
         text-align: center; /* Center header */
@@ -210,4 +214,63 @@ footer a:hover {
 }
 .skip-link:focus {
   top: 0;
+}
+
+/* --- Android TV & Mobile Enhancements --- */
+@media (max-width: 1024px), (pointer: coarse) {
+    html, body {
+        font-size: 1.15em;
+    }
+    main {
+        gap: 1.2rem;
+    }
+    #history, #zmanim, aside header {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    #history-iframe {
+        min-height: 300px;
+        height: 40vh;
+    }
+    textarea#hebrew-input {
+        font-size: 1.3rem;
+        min-height: 120px;
+        border-radius: 8px;
+    }
+}
+
+@media (max-width: 600px), (pointer: coarse) {
+    html, body {
+        font-size: 1.25em;
+    }
+    #history-iframe {
+        min-height: 220px;
+        height: 35vh;
+    }
+    aside h1, #history-heading, #zmanim-heading {
+        font-size: 1.2em;
+    }
+    .time-list li {
+        font-size: 1em;
+        padding-bottom: 0.8em;
+    }
+    textarea#hebrew-input {
+        font-size: 1.1rem;
+        min-height: 90px;
+    }
+}
+
+/* TV: Large touch targets, more spacing */
+@media (pointer: coarse) and (min-width: 1000px) {
+    body {
+        font-size: 1.4em;
+    }
+    button, input, textarea, select, a {
+        min-height: 48px;
+        min-width: 48px;
+        font-size: 1.2em;
+    }
+    #history, #zmanim, aside header {
+        padding: 2rem;
+    }
 }
