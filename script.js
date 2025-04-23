@@ -16,7 +16,7 @@ const Model = {
             const year = gregorianDate.getFullYear();
             const month = gregorianDate.getMonth() + 1;
             const day = gregorianDate.getDate();
-            const url = `https://www.hebcal.com/converter?cfg=json&gy=${year}&gm=${month}&gd=${day}&g2h=1`;
+            const url = `http://www.hebcal.com/converter?cfg=json&gy=${year}&gm=${month}&gd=${day}&g2h=1`;
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url);
             Model.logToScreen('XHR (Hebrew Date): Request opened to ' + url);
@@ -56,7 +56,7 @@ const Model = {
     getZmanim() {
         return new Promise((resolve, reject) => {
             const geonameid = '294074'; // Ness Ziona
-            const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=${geonameid}&tzid=Asia/Jerusalem`;
+            const url = `http://www.hebcal.com/zmanim?cfg=json&geonameid=${geonameid}&tzid=Asia/Jerusalem`;
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url);
             Model.logToScreen('XHR (Zmanim): Request opened to ' + url);
