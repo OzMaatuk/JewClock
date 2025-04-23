@@ -211,4 +211,57 @@ const Controller = {
 // --- Start the application ---
 document.addEventListener('DOMContentLoaded', () => {
     Controller.init(); // Initialize Hebcal data fetching and time updates
+
+    // --- Auto-scroll logic for TV and long pages ---
+    function startAutoScroll() {
+        const scrollContainer = document.scrollingElement || document.documentElement;
+        let scrollSpeed = 1; // px per frame
+        let pauseTime = 1200; // ms to pause at top/bottom
+        let isPaused = false;
+        let direction = 1; // 1 = down, -1 = up
+
+        function step() {
+            let maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+            if (maxScroll <= 0) return; // No scroll needed
+
+            if (!isPaused) {
+                scrollContainer.scrollTop += direction * scrollSpeed;
+
+                // At bottom (allow for rounding errors)
+                if (direction === 1 && scrollContainer.scrollTop + 2 >= maxScroll) {
+                    scrollContainer.scrollTop = maxScroll;
+                    isPaused = true;
+                    setTimeout(() => {
+                        direction = -1;
+                        isPaused = false;
+                        requestAnimationFrame(step); // Resume after pause
+                    }, pauseTime);
+                    return; // Stop stepping until resumed
+                }
+                // At top
+                else if (direction === -1 && scrollContainer.scrollTop <= 0) {
+                    scrollContainer.scrollTop = 0;
+                    isPaused = true;
+                    setTimeout(() => {
+                        direction = 1;
+                        isPaused = false;
+                        requestAnimationFrame(step); // Resume after pause
+                    }, pauseTime);
+                    return; // Stop stepping until resumed
+                }
+                requestAnimationFrame(step);
+            }
+        }
+
+        // Start the animation loop
+        step();
+    }
+
+    // Only enable auto-scroll if content overflows
+    setTimeout(() => {
+        const scrollContainer = document.scrollingElement || document.documentElement;
+        if (scrollContainer.scrollHeight > scrollContainer.clientHeight) {
+            startAutoScroll();
+        }
+    }, 1000);
 });
