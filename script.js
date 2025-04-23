@@ -2,53 +2,71 @@
 // Due to browser security restrictions (Same-Origin Policy & CORS), it's not possible to
 // modify the content *inside* the iframe or fetch the Chabad HTML directly using client-side JS.
 // This version displays the full Chabad page within the iframe and uses Hebcal API for dates/times.
-
-// --- Model: Handles data fetching from Hebcal API ---
+// --- Model: Handles data fetching from Hebcal API using XMLHttpRequest ---
 const Model = {
-    async getHebrewDate(gregorianDate) {
-        const year = gregorianDate.getFullYear();
-        const month = gregorianDate.getMonth() + 1; // API uses 1-based months
-        const day = gregorianDate.getDate();
-        const url = `https://www.hebcal.com/converter?cfg=json&gy=${year}&gm=${month}&gd=${day}&g2h=1`;
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Hebcal API Error (Hebrew Date): ${response.status}`);
-            const data = await response.json();
-            console.log('Hebcal API response:', data); // Debug: log full response
-            if (data && data.hebrew) {
-                // Compose a detailed string: full Hebrew, numeric, and events
-                let details = `<span title='${data.hd} ${data.hm} ${data.hy}'>${data.hebrew}</span>`;
-                if (Array.isArray(data.events) && data.events.length > 0) {
-                    details += '<br><span class="hebrew-events">Events: ' + data.events.join(', ') + '</span>';
+    getHebrewDate(gregorianDate) {
+        return new Promise((resolve, reject) => {
+            const year = gregorianDate.getFullYear();
+            const month = gregorianDate.getMonth() + 1; // API uses 1-based months
+            const day = gregorianDate.getDate();
+            const url = `https://www.hebcal.com/converter?cfg=json&gy=${year}&gm=${month}&gd=${day}&g2h=1`;
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        console.log('Hebcal API response (XHR):', data);
+                        if (data && data.hebrew) {
+                            let details = `<span title='${data.hd} ${data.hm} ${data.hy}'>${data.hebrew}</span>`;
+                            if (Array.isArray(data.events) && data.events.length > 0) {
+                                details += '<br><span class="hebrew-events">Events: ' + data.events.join(', ') + '</span>';
+                            }
+                            resolve(details);
+                        } else {
+                            reject(new Error('Invalid data structure from Hebcal API (Hebrew Date - XHR)'));
+                        }
+                    } catch (e) {
+                        reject(new Error('Error parsing JSON response (Hebrew Date - XHR)'));
+                    }
+                } else {
+                    reject(new Error(`Hebcal API Error (Hebrew Date - XHR): ${xhr.status}`));
                 }
-                return details;
-            } else {
-                throw new Error('Invalid data structure from Hebcal API (Hebrew Date)');
-            }
-        } catch (error) {
-            console.error('Error fetching Hebrew date:', error);
-            return '<span style="color:red">Error loading Hebrew date</span>';
-        }
+            };
+            xhr.onerror = function() {
+                reject(new Error('Network error fetching Hebrew date (XHR)'));
+            };
+            xhr.send();
+        });
     },
 
-    async getZmanim() {
-        const geonameid = '294074'; // Ness Ziona
-        // Hebcal determines date based on timezone/location, date param isn't strictly needed for 'today'
-        // but can be included for explicit clarity if desired.
-        const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=${geonameid}&tzid=Asia/Jerusalem`;
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Hebcal API Error (Zmanim): ${response.status}`);
-            const data = await response.json();
-            if (data && data.times) {
-                return data.times;
-            } else {
-                throw new Error('Invalid data structure received for Zmanim');
-            }
-        } catch (error) {
-            console.error('Error fetching zmanim:', error);
-            return null; // Indicate failure clearly
-        }
+    getZmanim() {
+        return new Promise((resolve, reject) => {
+            const geonameid = '294074'; // Ness Ziona
+            const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=${geonameid}&tzid=Asia/Jerusalem`;
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data && data.times) {
+                            resolve(data.times);
+                        } else {
+                            reject(new Error('Invalid data structure received for Zmanim (XHR)'));
+                        }
+                    } catch (e) {
+                        reject(new Error('Error parsing JSON response for Zmanim (XHR)'));
+                    }
+                } else {
+                    reject(new Error(`Hebcal API Error (Zmanim - XHR): ${xhr.status}`));
+                }
+            };
+            xhr.onerror = function() {
+                reject(new Error('Network error fetching zmanim (XHR)'));
+            };
+            xhr.send();
+        });
     }
 };
 
@@ -79,16 +97,16 @@ const View = {
 
         // Define desired times and their display names
         const timesToShow = {
-              alotHaShachar: 'Dawn (Alot HaShachar)',
-              neitzHaChama: 'Sunrise (Netz)', // Hebcal often uses neitzHaChama for sunrise
-              sofZmanShma: 'Latest Shma (Gra)',
-              sofZmanTfilla: 'Latest Shacharit (Gra)',
-              chatzot: 'Midday (Chatzot)',
-              minchaGedola: 'Earliest Mincha',
-              minchaKetana: 'Preferable Mincha',
-              plagHaMincha: 'Plag HaMincha',
-              shkiah: 'Sunset (Shkiah)', // Hebcal often uses shkiah for sunset
-              tzeit: 'Nightfall (Tzeit)'
+            alotHaShachar: 'Dawn (Alot HaShachar)',
+            neitzHaChama: 'Sunrise (Netz)', // Hebcal often uses neitzHaChama for sunrise
+            sofZmanShma: 'Latest Shma (Gra)',
+            sofZmanTfilla: 'Latest Shacharit (Gra)',
+            chatzot: 'Midday (Chatzot)',
+            minchaGedola: 'Earliest Mincha',
+            minchaKetana: 'Preferable Mincha',
+            plagHaMincha: 'Plag HaMincha',
+            shkiah: 'Sunset (Shkiah)', // Hebcal often uses shkiah for sunset
+            tzeit: 'Nightfall (Tzeit)'
         };
 
         let itemsAdded = 0;
@@ -129,7 +147,7 @@ const View = {
 // --- Controller: Manages interactions and updates ---
 const Controller = {
     lastFetchedDate: null, // Store the date (e.g., "YYYY-MM-DD") of the last successful fetch
-    intervalId: null,      // Store the ID of the interval timer
+    intervalId: null,       // Store the ID of the interval timer
     lastHebrewDateStr: 'Loading...', // Store the last fetched Hebrew date string (with HTML)
 
     async fetchAndDisplayData() {
@@ -137,13 +155,15 @@ const Controller = {
         const now = new Date();
         const currentDateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD format
 
-        const hebrewStr = await Model.getHebrewDate(now);
-        const zmanim = await Model.getZmanim();
+        const hebrewStrPromise = Model.getHebrewDate(now);
+        const zmanimPromise = Model.getZmanim();
+
+        const [hebrewStr, zmanim] = await Promise.all([hebrewStrPromise, zmanimPromise]);
 
         // Only update the last fetched date if fetches were reasonably successful
         // (Prevents constant refetching if API fails)
         if (!hebrewStr.includes('Error') && zmanim !== null) {
-           this.lastFetchedDate = currentDateStr;
+            this.lastFetchedDate = currentDateStr;
         }
         this.lastHebrewDateStr = hebrewStr; // Store the fetched Hebrew date string
 
@@ -155,9 +175,9 @@ const Controller = {
     updateTimeDisplay() {
         const now = new Date();
         const gregorianDateStr = now.toLocaleDateString('en-US', {
-             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         });
-         const gregorianTimeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        const gregorianTimeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
         // Use the stored lastHebrewDateStr instead of reading from the DOM
         const hebrewStr = this.lastHebrewDateStr || 'Loading...';
 
@@ -184,7 +204,7 @@ const Controller = {
 
     init() {
         this.fetchAndDisplayData(); // Initial data fetch
-        this.startIntervalTimer();  // Start the interval timer
+        this.startIntervalTimer();   // Start the interval timer
     }
 };
 
