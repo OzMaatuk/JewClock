@@ -4,19 +4,29 @@
 // This version displays the full Chabad page within the iframe and uses Hebcal API for dates/times.
 // --- Model: Handles data fetching from Hebcal API using XMLHttpRequest ---
 const Model = {
+    logToScreen(message) {
+        const logOutput = document.getElementById('log-output');
+        if (logOutput) {
+            logOutput.textContent += message + '\n';
+        }
+    },
+
     getHebrewDate(gregorianDate) {
         return new Promise((resolve, reject) => {
             const year = gregorianDate.getFullYear();
-            const month = gregorianDate.getMonth() + 1; // API uses 1-based months
+            const month = gregorianDate.getMonth() + 1;
             const day = gregorianDate.getDate();
             const url = `https://www.hebcal.com/converter?cfg=json&gy=${year}&gm=${month}&gd=${day}&g2h=1`;
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url);
+            Model.logToScreen('XHR (Hebrew Date): Request opened to ' + url);
             xhr.onload = function() {
+                Model.logToScreen('XHR (Hebrew Date): Status ' + xhr.status);
+                Model.logToScreen('XHR (Hebrew Date): Response Text ' + xhr.responseText);
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
-                        console.log('Hebcal API response (XHR):', data);
+                        Model.logToScreen('XHR (Hebrew Date): Parsed Data ' + JSON.stringify(data, null, 2));
                         if (data && data.hebrew) {
                             let details = `<span title='${data.hd} ${data.hm} ${data.hy}'>${data.hebrew}</span>`;
                             if (Array.isArray(data.events) && data.events.length > 0) {
@@ -27,6 +37,7 @@ const Model = {
                             reject(new Error('Invalid data structure from Hebcal API (Hebrew Date - XHR)'));
                         }
                     } catch (e) {
+                        Model.logToScreen('XHR (Hebrew Date): Error parsing JSON ' + e);
                         reject(new Error('Error parsing JSON response (Hebrew Date - XHR)'));
                     }
                 } else {
@@ -34,9 +45,11 @@ const Model = {
                 }
             };
             xhr.onerror = function() {
+                Model.logToScreen('XHR (Hebrew Date): Network Error');
                 reject(new Error('Network error fetching Hebrew date (XHR)'));
             };
             xhr.send();
+            Model.logToScreen('XHR (Hebrew Date): Request sent');
         });
     },
 
@@ -46,16 +59,21 @@ const Model = {
             const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=${geonameid}&tzid=Asia/Jerusalem`;
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url);
+            Model.logToScreen('XHR (Zmanim): Request opened to ' + url);
             xhr.onload = function() {
+                Model.logToScreen('XHR (Zmanim): Status ' + xhr.status);
+                Model.logToScreen('XHR (Zmanim): Response Text ' + xhr.responseText);
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
+                        Model.logToScreen('XHR (Zmanim): Parsed Data ' + JSON.stringify(data, null, 2));
                         if (data && data.times) {
                             resolve(data.times);
                         } else {
                             reject(new Error('Invalid data structure received for Zmanim (XHR)'));
                         }
                     } catch (e) {
+                        Model.logToScreen('XHR (Zmanim): Error parsing JSON ' + e);
                         reject(new Error('Error parsing JSON response for Zmanim (XHR)'));
                     }
                 } else {
@@ -63,9 +81,11 @@ const Model = {
                 }
             };
             xhr.onerror = function() {
+                Model.logToScreen('XHR (Zmanim): Network Error');
                 reject(new Error('Network error fetching zmanim (XHR)'));
             };
             xhr.send();
+            Model.logToScreen('XHR (Zmanim): Request sent');
         });
     }
 };
@@ -153,7 +173,7 @@ const Controller = {
     async fetchAndDisplayData() {
         console.log("Fetching daily data...");
         const now = new Date();
-        const currentDateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD format
+        const currentDateStr = now.toISOString().slice(0, 10); //YYYY-MM-DD format
 
         const hebrewStrPromise = Model.getHebrewDate(now);
         const zmanimPromise = Model.getZmanim();
