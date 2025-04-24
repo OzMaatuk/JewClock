@@ -5,18 +5,30 @@
     box-sizing: border-box;
 }
 
+:root {
+    --site-scale: 0.9;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
     color: #333;
-    max-width: 1200px;
-    margin: 0 auto;
     padding: 1rem;
     background-color: #f9f9f9;
     display: flex; /* Enable flexbox for the body */
     flex-direction: column; /* Stack main and footer vertically */
     min-height: 100vh; /* Ensure body takes at least the full viewport height */
-    font-size: 1.2vw; /* Smaller base font for TV */
+    font-size: 16px; /* Standard base font size for desktop */
+    height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Main container */
@@ -24,8 +36,11 @@ main {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two equal columns */
     gap: 1.2rem; /* Reduce gap for tighter layout */
-    margin: 2rem 0;
+    margin: 0.5rem 0; /* Reduced margin for less empty space */
     flex-grow: 1; /* Allow main to grow */
+    min-height: 0;
+    transform: scale(0.8);
+    transform-origin: top center;
 }
 
 /* History section (left side) */
@@ -62,7 +77,7 @@ aside {
     grid-column: 2 / 3;
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* Reduce gap */
+    gap: 0rem; /* Even tighter vertical spacing between children */
     order: 1; /* Place second in grid on desktop */
 }
 
@@ -70,20 +85,20 @@ aside header {
     text-align: left;
     padding: 0;
     border-bottom: none;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0rem; /* Less space below header */
 }
 
 aside h1 {
-    font-size: 1.3rem; /* Smaller title */
+    font-size: 1.3rem; /* Smaller main title */
     color: #1a3c6d;
-    margin-bottom: 0.5rem;
-    white-space: nowrap; /* Prevent wrapping */
+    margin-bottom: 0rem; /* Less space below title */
+    white-space: nowrap;
     line-height: 1.1;
 }
 
 aside #current-date p {
     margin: 0.2rem 0;
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.1;
     white-space: nowrap; /* Prevent wrapping */
 }
@@ -97,12 +112,13 @@ aside #current-date p strong {
     padding: 1rem; /* Reduce padding */
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0rem; /* Less space below zmanim section */
 }
 
 #zmanim-heading {
-    font-size: 1.1rem; /* Smaller heading */
+    font-size: 1.2rem; /* Slightly smaller section heading for proportion */
     color: #1a3c6d;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0rem; /* Less space below heading */
     white-space: nowrap; /* Prevent wrapping */
 }
 
@@ -125,8 +141,8 @@ aside #current-date p strong {
 /* Footer */
 footer {
     text-align: center;
-    padding: 1.5rem 0 1rem 0; /* Add some space */
-    margin-top: 1rem; /* Space above footer */
+    padding: 0.5rem 0 0.5rem 0; /* Reduced padding */
+    margin-top: 0.2rem; /* Reduced space above footer */
     border-top: 1px solid #ddd;
     font-size: 0.8rem; /* Smaller font size */
     color: #666;
@@ -141,15 +157,18 @@ footer a:hover {
 
 /* Hebrew events styling */
 .hebrew-events {
-    display: block;
-    margin-top: 0.1em; /* Reduce margin */
+    display: inline; /* Inline for alignment with label */
+    margin: 0;
     color: #1a3c6d;
-    font-size: 0.95em; /* Smaller font size */
+    font-size: inherit; /* Match parent font size */
     font-weight: 500;
     letter-spacing: 0.01em;
-    text-align: left;
-    padding-left: 0.2em;
-    white-space: nowrap; /* Prevent wrapping */
+    text-align: inherit;
+    padding-left: 0;
+    white-space: nowrap;
+}
+.hebrew-events strong {
+    font-weight: bold;
 }
 
 /* Responsive design */
@@ -252,6 +271,8 @@ footer a:hover {
         font-size: 1.3rem;
         min-height: 120px;
         border-radius: 8px;
+        margin-top: 0rem; /* Less space above textarea */
+        margin-bottom: 0rem; /* Less space below textarea */
     }
 }
 
@@ -321,5 +342,11 @@ footer a:hover {
     }
     .main-container {
         padding: 2vw;
+    }
+}
+
+@media (min-width: 1600px) {
+    body {
+        font-size: 1.2vw; /* Only use vw units for very large screens (TVs) */
     }
 }

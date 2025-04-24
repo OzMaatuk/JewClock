@@ -20,7 +20,7 @@ const Model = {
                         if (data && data.hebrew) {
                             let details = `<span title='${data.hd} ${data.hm} ${data.hy}'>${data.hebrew}</span>`;
                             if (Array.isArray(data.events) && data.events.length > 0) {
-                                details += '<br><span class="hebrew-events">Events: ' + data.events.join(', ') + '</span>';
+                                details += '<br><span class="hebrew-events"><strong>Events:</strong> ' + data.events.join(', ') + '</span>';
                             }
                             resolve(details);
                         } else {
@@ -98,44 +98,57 @@ const View = {
         // Define desired times and their display names
         const timesToShow = {
             alotHaShachar: 'Dawn (Alot HaShachar)',
-            neitzHaChama: 'Sunrise (Netz)', // Hebcal often uses neitzHaChama for sunrise
+            neitzHaChama: 'Sunrise (Netz)',
             sofZmanShma: 'Latest Shma (Gra)',
             sofZmanTfilla: 'Latest Shacharit (Gra)',
             chatzot: 'Midday (Chatzot)',
             minchaGedola: 'Earliest Mincha',
             minchaKetana: 'Preferable Mincha',
             plagHaMincha: 'Plag HaMincha',
-            shkiah: 'Sunset (Shkiah)', // Hebcal often uses shkiah for sunset
+            shkiah: 'Sunset (Shkiah)',
             tzeit: 'Nightfall (Tzeit)'
         };
 
         let itemsAdded = 0;
         for (const key in timesToShow) {
-            let timeStr = zmanim[key];
-            // Hebcal might return slightly different keys (e.g., sunrise vs neitzHaChama)
-            if (!timeStr && key === 'sunrise') timeStr = zmanim['neitzHaChama'];
-            if (!timeStr && key === 'sunset') timeStr = zmanim['shkiah'];
+            let timeStr = undefined;
+            if (key === 'shkiah') {
+                // Try shkiah, then sunset
+                timeStr = zmanim['shkiah'] || zmanim['sunset'];
+            } else if (key === 'tzeit') {
+                // Try tzeit, tzeit7083deg, tzeit85deg, tzeit42min, tzeit50min, tzeit72min
+                const tzeitKeys = ['tzeit', 'tzeit7083deg', 'tzeit85deg', 'tzeit42min', 'tzeit50min', 'tzeit72min'];
+                for (const tkey of tzeitKeys) {
+                    if (zmanim[tkey]) {
+                        timeStr = zmanim[tkey];
+                        break;
+                    }
+                }
+            } else if (key === 'neitzHaChama') {
+                // Try neitzHaChama, then sunrise
+                timeStr = zmanim['neitzHaChama'] || zmanim['sunrise'];
+            } else {
+                timeStr = zmanim[key];
+            }
 
+            let displayValue = '';
             if (timeStr) {
                 try {
-                    // Attempt to format the time
                     const time = new Date(timeStr).toLocaleTimeString('en-US', {
-                        hour: 'numeric', // Use 'numeric' for cleaner look (e.g., 6:30 AM)
+                        hour: 'numeric',
                         minute: '2-digit',
-                        // timeZoneName: 'short' // Optional: Adds timezone like IST/IDT
                     });
-                    const li = document.createElement('li');
-                    li.textContent = `${timesToShow[key]}: ${time}`;
-                    list.appendChild(li);
-                    itemsAdded++;
+                    displayValue = time;
                 } catch (e) {
-                    console.error(`Error formatting time for ${key}: ${timeStr}`, e);
-                    // Optionally display an error for this specific time
-                    const li = document.createElement('li');
-                    li.textContent = `${timesToShow[key]}: Invalid time data`;
-                    list.appendChild(li);
+                    displayValue = 'Invalid time data';
                 }
+            } else {
+                displayValue = 'Not available';
             }
+            const li = document.createElement('li');
+            li.textContent = `${timesToShow[key]}: ${displayValue}`;
+            list.appendChild(li);
+            itemsAdded++;
         }
 
         if (itemsAdded === 0) {

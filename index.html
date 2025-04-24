@@ -8,36 +8,36 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="autoscroll">
-    <main>                
-        <aside>
-            <header>
-                <h1>Jewish Today</h1>
-                <div id="current-date" aria-live="polite">
-                    <p><strong>Gregorian:</strong> <time id="gregorian-date">Loading...</time></p>
-                    <p><strong>Hebrew:</strong> <span id="hebrew-date">Loading...</span></p>
-                    <p><strong>Location:</strong> <span id="location">Ness Ziona</span></p> </div>
-            </header>
+    <div class="container">
+        <main>
+            <aside>
+                <header>
+                    <h1>Jewish Today</h1>
+                    <div id="current-date" aria-live="polite">
+                        <p><strong>Gregorian:</strong> <time id="gregorian-date">Loading...</time></p>
+                        <p><strong>Hebrew:</strong> <span id="hebrew-date">Loading...</span></p>
+                        <p><strong>Location:</strong> <span id="location">Ness Ziona</span></p> </div>
+                </header>
 
-            <section id="zmanim" aria-labelledby="zmanim-heading">
-                <h2 id="zmanim-heading">Today’s Jewish Times (Ness Ziona)</h2>
-                <ul id="zmanim-list" class="time-list"><li>Loading times...</li></ul>
+                <section id="zmanim" aria-labelledby="zmanim-heading">
+                    <h2 id="zmanim-heading">Today’s Jewish Times (Ness Ziona)</h2>
+                    <ul id="zmanim-list" class="time-list"><li>Loading times...</li></ul>
+                </section>
+
+                <textarea id="hebrew-input" placeholder="Write in Hebrew here..." aria-label="Hebrew text input area" style="font-size: 1.5rem; width: 100%; min-height: 100px; margin-top: 1rem; border-radius: 4px; padding: 0.5rem; border: 1px solid #ccc;"></textarea>
+            </aside>
+
+            <section id="history" aria-labelledby="history-heading">
+                <h2 id="history-heading">Today in Jewish History</h2>
+                <iframe id="history-iframe" src="https://www.chabad.org/calendar/view/day.htm#history" title="Today in Jewish History from Chabad.org" loading="lazy">
+                    <p>Your browser does not support iframes. Please visit <a href="https://www.chabad.org/calendar/view/day.htm">Chabad.org</a> directly for Today in Jewish History.</p>
+                </iframe>
             </section>
-
-            <textarea id="hebrew-input" placeholder="Write in Hebrew here..." aria-label="Hebrew text input area" style="font-size: 1.5rem; width: 100%; min-height: 100px; margin-top: 1rem; border-radius: 4px; padding: 0.5rem; border: 1px solid #ccc;"></textarea>
-        </aside>
-
-        <section id="history" aria-labelledby="history-heading">
-            <h2 id="history-heading">Today in Jewish History</h2>
-            <iframe id="history-iframe" src="https://www.chabad.org/calendar/view/day.htm#history" title="Today in Jewish History from Chabad.org" loading="lazy">
-                <p>Your browser does not support iframes. Please visit <a href="https://www.chabad.org/calendar/view/day.htm">Chabad.org</a> directly for Today in Jewish History.</p>
-            </iframe>
-        </section>
-    </main>
-
+        </main>
+    </div>
     <footer>
         <p>Date and Times data powered by <a href="https://www.hebcal.com" target="_blank" rel="noopener">Hebcal</a>. History section embedded from Chabad.org.</p>
     </footer>
-
     <script src="script.js"></script>
 </body>
 </html>
