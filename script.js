@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Auto-scroll logic: Jump from top to bottom and repeat ---
     function startAutoScrollJumpTopBottom() {
         var scrollContainer = document.scrollingElement || document.documentElement;
-        var pauseTime = 1200; // ms to pause at top/bottom
+        var pauseTime = 3000; // ms to pause at top/bottom
         var rafId = null;
         var isPaused = false;
 
