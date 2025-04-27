@@ -221,31 +221,43 @@ const Controller = {
 document.addEventListener('DOMContentLoaded', () => {
     Controller.init(); // Initialize Hebcal data fetching and time updates
 
-    // --- Auto-scroll logic for TV and long pages ---
-    function startAutoScrollJump() {
+    // --- Auto-scroll logic: Jump from top to bottom and repeat ---
+    function startAutoScrollJumpTopBottom() {
         var scrollContainer = document.scrollingElement || document.documentElement;
-        var scrollSpeed = 1.5; // pixels per frame
-        var pauseTime = 800; // ms to pause at top
+        var pauseTime = 1200; // ms to pause at top/bottom
         var rafId = null;
         var isPaused = false;
 
-        function scrollFrame(timestamp) {
-            if (isPaused) return;
-            var maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-            var currentScroll = scrollContainer.scrollTop;
-            var jumpPoint = maxScroll * 0.6; // 60%
+        function recalcMaxScroll() {
+            return scrollContainer.scrollHeight - scrollContainer.clientHeight;
+        }
 
-            if (currentScroll >= jumpPoint) {
-                window.scrollTo(0, 0);
-                // Optionally pause for a moment:
+        function scrollFrame() {
+            if (isPaused) return;
+            var maxScroll = recalcMaxScroll();
+            if (maxScroll <= 0) return;
+            var currentScroll = scrollContainer.scrollTop;
+
+            if (currentScroll < maxScroll) {
+                // Scroll to bottom instantly
+                window.scrollTo(0, maxScroll);
+                isPaused = true;
                 setTimeout(function() {
+                    // Jump to top after pause
+                    window.scrollTo(0, 0);
+                    setTimeout(function() {
+                        isPaused = false;
+                        rafId = requestAnimationFrame(scrollFrame);
+                    }, pauseTime);
+                }, pauseTime);
+            } else {
+                // At bottom, jump to top
+                window.scrollTo(0, 0);
+                setTimeout(function() {
+                    isPaused = false;
                     rafId = requestAnimationFrame(scrollFrame);
                 }, pauseTime);
-                return;
             }
-
-            window.scrollTo(0, currentScroll + scrollSpeed);
-            rafId = requestAnimationFrame(scrollFrame);
         }
 
         rafId = requestAnimationFrame(scrollFrame);
@@ -255,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(function() {
         var scrollContainer = document.scrollingElement || document.documentElement;
         if (scrollContainer.scrollHeight > scrollContainer.clientHeight) {
-            startAutoScrollJump();
+            startAutoScrollJumpTopBottom();
         }
     }, 1000);
 });
