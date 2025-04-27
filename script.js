@@ -1,7 +1,3 @@
-// NOTE: This application embeds 'Today in Jewish History' from Chabad.org using an iframe.
-// Due to browser security restrictions (Same-Origin Policy & CORS), it's not possible to
-// modify the content *inside* the iframe or fetch the Chabad HTML directly using client-side JS.
-// This version displays the full Chabad page within the iframe and uses Hebcal API for dates/times.
 // --- Model: Handles data fetching from Hebcal API using XMLHttpRequest ---
 const Model = {
     getHebrewDate(gregorianDate) {
@@ -226,47 +222,40 @@ document.addEventListener('DOMContentLoaded', () => {
     Controller.init(); // Initialize Hebcal data fetching and time updates
 
     // --- Auto-scroll logic for TV and long pages ---
-    function startAutoScrollCompat() {
+    function startAutoScrollJump() {
         var scrollContainer = document.scrollingElement || document.documentElement;
-        var scrollSpeed = 1; // px per tick
-        var pauseTime = 1200; // ms to pause at top/bottom
-        var direction = 1; // 1 = down, -1 = up
+        var scrollSpeed = 1.5; // pixels per frame
+        var pauseTime = 800; // ms to pause at top
+        var rafId = null;
         var isPaused = false;
-        var intervalId = null;
 
-        function doScroll() {
+        function scrollFrame(timestamp) {
             if (isPaused) return;
             var maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-            if (maxScroll <= 0) return;
-            scrollContainer.scrollTop += direction * scrollSpeed;
-            // At bottom
-            if (direction === 1 && scrollContainer.scrollTop + 2 >= maxScroll) {
-                scrollContainer.scrollTop = maxScroll;
-                isPaused = true;
+            var currentScroll = scrollContainer.scrollTop;
+            var jumpPoint = maxScroll * 0.6; // 60%
+
+            if (currentScroll >= jumpPoint) {
+                window.scrollTo(0, 0);
+                // Optionally pause for a moment:
                 setTimeout(function() {
-                    direction = -1;
-                    isPaused = false;
+                    rafId = requestAnimationFrame(scrollFrame);
                 }, pauseTime);
+                return;
             }
-            // At top
-            else if (direction === -1 && scrollContainer.scrollTop <= 0) {
-                scrollContainer.scrollTop = 0;
-                isPaused = true;
-                setTimeout(function() {
-                    direction = 1;
-                    isPaused = false;
-                }, pauseTime);
-            }
+
+            window.scrollTo(0, currentScroll + scrollSpeed);
+            rafId = requestAnimationFrame(scrollFrame);
         }
 
-        intervalId = setInterval(doScroll, 20); // ~50fps
+        rafId = requestAnimationFrame(scrollFrame);
     }
 
     // Only enable auto-scroll if content overflows
     setTimeout(function() {
         var scrollContainer = document.scrollingElement || document.documentElement;
         if (scrollContainer.scrollHeight > scrollContainer.clientHeight) {
-            startAutoScrollCompat();
+            startAutoScrollJump();
         }
     }, 1000);
 });
