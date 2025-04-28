@@ -270,4 +270,16 @@ document.addEventListener('DOMContentLoaded', () => {
             startAutoScrollJumpTopBottom();
         }
     }, 1000);
+
+    // --- Refresh at midnight (00:00) ---
+    function scheduleMidnightRefresh() {
+        const now = new Date();
+        const nextMidnight = new Date(now);
+        nextMidnight.setHours(24, 0, 0, 0); // Set to next midnight
+        const msUntilMidnight = nextMidnight - now;
+        setTimeout(() => {
+            window.location.reload();
+        }, msUntilMidnight);
+    }
+    scheduleMidnightRefresh();
 });
